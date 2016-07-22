@@ -18,6 +18,7 @@ import threading
 import werkzeug.serving
 import pokemon_pb2
 import time
+from apns import APNs, Frame, Payload
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
@@ -707,6 +708,11 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             "id": poke.pokemon.PokemonId,
             "name": pokename
         }
+
+        apns = APNs(use_sandbox=True, cert_file='cert.pem', key_file='key.pem')
+        token_hex = 'your token here'
+        payload = Payload(alert="A wild {} appeared in your home area!".format(pokename), sound="default", badge=1)
+        apns.gateway_server.send_notification(token_hex, payload)
 
 def clear_stale_pokemons():
     current_time = time.time()
